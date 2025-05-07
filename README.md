@@ -1,6 +1,6 @@
 # Engelen's CICFlowMeter with PCAP Indexes
 
-This is a modified version of CICFlowMeter tool from [pull request #11](https://github.com/GintsEngelen/CICFlowMeter/pull/11). Other than generating flow CSV, this tool also generates the PCAP indexes of every packet contained in the flow. For example, if a flow has PCAP indexes 10, 11, and 13, that means the 10th, 11th, and 13th packets in the PCAP are part of that flow. **Note that at this point, it only supports file inputs, not folder inputs.**
+This is a modified version of CICFlowMeter tool from [pull request #11](https://github.com/GintsEngelen/CICFlowMeter/pull/11). Other than generating flow CSV, this tool also generates the PCAP indexes of every packet contained in the flow. For example, if a flow has PCAP indexes 10, 11, and 13, that means the 10th, 11th, and 13th packets in the input PCAP are part of that flow. This is useful when you need to be able to revert flows back into PCAP (e.g. you need `train.pcap` and `test.pcap` after train-test splitting). **Note that at this point, it only supports file inputs, not folder inputs.**
 
 ## Running the Tool
 
