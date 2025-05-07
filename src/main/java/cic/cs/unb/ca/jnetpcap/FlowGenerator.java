@@ -13,31 +13,43 @@ import java.util.Set;
 
 import static cic.cs.unb.ca.jnetpcap.Utils.LINE_SEP;
 
-
 public class FlowGenerator {
     public static final Logger logger = LoggerFactory.getLogger(FlowGenerator.class);
 
-    //total 85 colums
-	/*public static final String timeBasedHeader = "Flow ID, Source IP, Source Port, Destination IP, Destination Port, Protocol, "
-			+ "Timestamp, Flow Duration, Total Fwd Packets, Total Backward Packets,"
-			+ "Total Length of Fwd Packets, Total Length of Bwd Packets, "
-			+ "Fwd Packet Length Max, Fwd Packet Length Min, Fwd Packet Length Mean, Fwd Packet Length Std,"
-			+ "Bwd Packet Length Max, Bwd Packet Length Min, Bwd Packet Length Mean, Bwd Packet Length Std,"
-			+ "Flow Bytes/s, Flow Packets/s, Flow IAT Mean, Flow IAT Std, Flow IAT Max, Flow IAT Min,"
-			+ "Fwd IAT Total, Fwd IAT Mean, Fwd IAT Std, Fwd IAT Max, Fwd IAT Min,"
-			+ "Bwd IAT Total, Bwd IAT Mean, Bwd IAT Std, Bwd IAT Max, Bwd IAT Min,"
-			+ "Fwd PSH Flags, Bwd PSH Flags, Fwd URG Flags, Bwd URG Flags, Fwd Header Length, Bwd Header Length,"
-			+ "Fwd Packets/s, Bwd Packets/s, Min Packet Length, Max Packet Length, Packet Length Mean, Packet Length Std, Packet Length Variance,"
-			+ "FIN Flag Count, SYN Flag Count, RST Flag Count, PSH Flag Count, ACK Flag Count, URG Flag Count, "
-			+ "CWR Flag Count, ECE Flag Count, Down/Up Ratio, Average Packet Size, Avg Fwd Segment Size, Avg Bwd Segment Size, Fwd Header Length,"
-			+ "Fwd Avg Bytes/Bulk, Fwd Avg Packets/Bulk, Fwd Avg Bulk Rate, Bwd Avg Bytes/Bulk, Bwd Avg Packets/Bulk,"
-			+ "Bwd Avg Bulk Rate,"
-			+ "Subflow Fwd Packets, Subflow Fwd Bytes, Subflow Bwd Packets, Subflow Bwd Bytes,"
-			+ "Init_Win_bytes_forward, Init_Win_bytes_backward, act_data_pkt_fwd, min_seg_size_forward,"
-			+ "Active Mean, Active Std, Active Max, Active Min,"
-			+ "Idle Mean, Idle Std, Idle Max, Idle Min, Label";*/
+    // total 85 colums
+    /*
+     * public static final String timeBasedHeader =
+     * "Flow ID, Source IP, Source Port, Destination IP, Destination Port, Protocol, "
+     * + "Timestamp, Flow Duration, Total Fwd Packets, Total Backward Packets,"
+     * + "Total Length of Fwd Packets, Total Length of Bwd Packets, "
+     * +
+     * "Fwd Packet Length Max, Fwd Packet Length Min, Fwd Packet Length Mean, Fwd Packet Length Std,"
+     * +
+     * "Bwd Packet Length Max, Bwd Packet Length Min, Bwd Packet Length Mean, Bwd Packet Length Std,"
+     * +
+     * "Flow Bytes/s, Flow Packets/s, Flow IAT Mean, Flow IAT Std, Flow IAT Max, Flow IAT Min,"
+     * + "Fwd IAT Total, Fwd IAT Mean, Fwd IAT Std, Fwd IAT Max, Fwd IAT Min,"
+     * + "Bwd IAT Total, Bwd IAT Mean, Bwd IAT Std, Bwd IAT Max, Bwd IAT Min,"
+     * +
+     * "Fwd PSH Flags, Bwd PSH Flags, Fwd URG Flags, Bwd URG Flags, Fwd Header Length, Bwd Header Length,"
+     * +
+     * "Fwd Packets/s, Bwd Packets/s, Min Packet Length, Max Packet Length, Packet Length Mean, Packet Length Std, Packet Length Variance,"
+     * +
+     * "FIN Flag Count, SYN Flag Count, RST Flag Count, PSH Flag Count, ACK Flag Count, URG Flag Count, "
+     * +
+     * "CWR Flag Count, ECE Flag Count, Down/Up Ratio, Average Packet Size, Avg Fwd Segment Size, Avg Bwd Segment Size, Fwd Header Length,"
+     * +
+     * "Fwd Avg Bytes/Bulk, Fwd Avg Packets/Bulk, Fwd Avg Bulk Rate, Bwd Avg Bytes/Bulk, Bwd Avg Packets/Bulk,"
+     * + "Bwd Avg Bulk Rate,"
+     * +
+     * "Subflow Fwd Packets, Subflow Fwd Bytes, Subflow Bwd Packets, Subflow Bwd Bytes,"
+     * +
+     * "Init_Win_bytes_forward, Init_Win_bytes_backward, act_data_pkt_fwd, min_seg_size_forward,"
+     * + "Active Mean, Active Std, Active Max, Active Min,"
+     * + "Idle Mean, Idle Std, Idle Max, Idle Min, Label";
+     */
 
-    //40/86
+    // 40/86
     private FlowGenListener mListener;
     private HashMap<String, BasicFlow> currentFlows;
     private HashMap<Integer, BasicFlow> finishedFlows;
@@ -104,29 +116,38 @@ public class FlowGenerator {
                     mListener.onFlowGenerated(flow);
                 } else {
                     finishedFlows.put(getFlowCount(), flow);
-                    //flow.endActiveIdleTime(currentTimestamp,this.flowActivityTimeOut, this.flowTimeOut, false);
+                    // flow.endActiveIdleTime(currentTimestamp,this.flowActivityTimeOut,
+                    // this.flowTimeOut, false);
                 }
                 currentFlows.remove(id);
 
-                // If the original flow is set for termination, or the flow is not a tcp connection, create a new flow
-                // Having a SYN packet and no ACK packet means it's the first packet in a new flow
-                if (((flow.getTcpFlowState() == TcpFlowState.READY_FOR_TERMINATION) && packet.hasFlagSYN() && !packet.hasFlagACK())
+                // If the original flow is set for termination, or the flow is not a tcp
+                // connection, create a new flow
+                // Having a SYN packet and no ACK packet means it's the first packet in a new
+                // flow
+                if (((flow.getTcpFlowState() == TcpFlowState.READY_FOR_TERMINATION) && packet.hasFlagSYN()
+                        && !packet.hasFlagACK())
                         || packet.getProtocol() != ProtocolEnum.TCP) {
                     // create new flow, don't switch direction
-                    currentFlows.put(id, new BasicFlow(bidirectional,packet,packet.getSrc(),packet.getDst(),packet.getSrcPort(),
-                    packet.getDstPort(), this.flowActivityTimeOut));
+                    currentFlows.put(id,
+                            new BasicFlow(bidirectional, packet, packet.getSrc(), packet.getDst(), packet.getSrcPort(),
+                                    packet.getDstPort(), this.flowActivityTimeOut));
                 } else {
-                  // Otherwise, the previous flow was likely terminated because of a timeout, and the new flow has to
-                  // maintain the same source and destination information as the previous flow (since they're part of the
-                  // same TCP connection).
-                    BasicFlow newFlow = new BasicFlow(bidirectional,packet,flow.getSrc(),flow.getDst(),flow.getSrcPort(),
+                    // Otherwise, the previous flow was likely terminated because of a timeout, and
+                    // the new flow has to
+                    // maintain the same source and destination information as the previous flow
+                    // (since they're part of the
+                    // same TCP connection).
+                    BasicFlow newFlow = new BasicFlow(bidirectional, packet, flow.getSrc(), flow.getDst(),
+                            flow.getSrcPort(),
                             flow.getDstPort(), this.flowActivityTimeOut);
 
                     long currDuration = flow.getCumulativeTcpConnectionDuration();
                     // get the gap between the last flow and the start of this flow
                     currDuration += (currentTimestamp - flow.getLastSeen());
                     newFlow.setCumulativeTcpConnectionDuration(currDuration);
-                    // Create a link to the previous tcp flow, this is required so that the final tcp flow duration
+                    // Create a link to the previous tcp flow, this is required so that the final
+                    // tcp flow duration
                     // can be set correctly.
                     newFlow.setPreviousTcpFlow(flow);
                     currentFlows.put(id, newFlow);
@@ -184,8 +205,9 @@ public class FlowGenerator {
                     currentFlows.remove(id);
 
                     // create new flow
-                    currentFlows.put(id, new BasicFlow(bidirectional,packet,packet.getSrc(),packet.getDst(),packet.getSrcPort(),
-                            packet.getDstPort(), this.flowActivityTimeOut));
+                    currentFlows.put(id,
+                            new BasicFlow(bidirectional, packet, packet.getSrc(), packet.getDst(), packet.getSrcPort(),
+                                    packet.getDstPort(), this.flowActivityTimeOut));
 
                 } else {
                     // normal behavior
@@ -203,33 +225,37 @@ public class FlowGenerator {
         }
     }
 
-    /*public void dumpFlowBasedFeatures(String path, String filename,String header){
-    	BasicFlow   flow;
-    	try {
-    		System.out.println("TOTAL Flows: "+(finishedFlows.size()+currentFlows.size()));
-    		FileOutputStream output = new FileOutputStream(new File(path+filename));    
-    		
-    		output.write((header+"\n").getBytes());
-    		Set<Integer> fkeys = finishedFlows.keySet();    		
-			for(Integer key:fkeys){
-	    		flow = finishedFlows.get(key);
-	    		if(flow.packetCount()>1)				
-	    			output.write((flow.dumpFlowBasedFeaturesEx()+"\n").getBytes());
-			}
-			Set<String> ckeys = currentFlows.keySet();   		
-			for(String key:ckeys){
-	    		flow = currentFlows.get(key);
-	    		if(flow.packetCount()>1)				
-	    			output.write((flow.dumpFlowBasedFeaturesEx()+"\n").getBytes());
-			}			
-			
-			output.flush();
-			output.close();			
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-
-    }*/
+    /*
+     * public void dumpFlowBasedFeatures(String path, String filename,String
+     * header){
+     * BasicFlow flow;
+     * try {
+     * System.out.println("TOTAL Flows: "+(finishedFlows.size()+currentFlows.size())
+     * );
+     * FileOutputStream output = new FileOutputStream(new File(path+filename));
+     * 
+     * output.write((header+"\n").getBytes());
+     * Set<Integer> fkeys = finishedFlows.keySet();
+     * for(Integer key:fkeys){
+     * flow = finishedFlows.get(key);
+     * if(flow.packetCount()>1)
+     * output.write((flow.dumpFlowBasedFeaturesEx()+"\n").getBytes());
+     * }
+     * Set<String> ckeys = currentFlows.keySet();
+     * for(String key:ckeys){
+     * flow = currentFlows.get(key);
+     * if(flow.packetCount()>1)
+     * output.write((flow.dumpFlowBasedFeaturesEx()+"\n").getBytes());
+     * }
+     * 
+     * output.flush();
+     * output.close();
+     * } catch (IOException e) {
+     * e.printStackTrace();
+     * }
+     * 
+     * }
+     */
 
     public int dumpLabeledFlowBasedFeatures(String path, String filename, String header) {
         BasicFlow flow;
@@ -237,7 +263,8 @@ public class FlowGenerator {
         int zeroPkt = 0;
 
         try {
-            //total = finishedFlows.size()+currentFlows.size(); becasue there are 0 packet BasicFlow in the currentFlows
+            // total = finishedFlows.size()+currentFlows.size(); becasue there are 0 packet
+            // BasicFlow in the currentFlows
 
             FileOutputStream output = new FileOutputStream(new File(path + filename));
             logger.debug("dumpLabeledFlow: ", path + filename);
@@ -285,13 +312,19 @@ public class FlowGenerator {
 
         File file = new File(fileFullPath);
         FileOutputStream output = null;
+        File indexFile = new File(fileFullPath + "_index.txt");
+        FileOutputStream indexOutput = null;
+
         int total = 0;
         try {
             if (file.exists()) {
                 output = new FileOutputStream(file, true);
+                indexOutput = new FileOutputStream(indexFile, true);
             } else {
                 if (file.createNewFile()) {
+                    indexFile.createNewFile();
                     output = new FileOutputStream(file);
+                    indexOutput = new FileOutputStream(indexFile);
                     output.write((header + LINE_SEP).getBytes());
                 }
             }
@@ -303,7 +336,17 @@ public class FlowGenerator {
                         flow = updateTcpCxnDuration(flow);
                     }
 
+                    StringBuilder indexDump = new StringBuilder();
+                    for (BasicPacketInfo packet : flow.getForward()) {
+                        indexDump.append(packet.getCount()).append(",");
+                    }
+
+                    for (BasicPacketInfo packet : flow.getBackward()) {
+                        indexDump.append(packet.getCount()).append(",");
+                    }
+
                     output.write((flow.dumpFlowBasedFeaturesEx() + LINE_SEP).getBytes());
+                    indexOutput.write((indexDump.toString() + LINE_SEP).getBytes());
                     total++;
                 } else {
 
@@ -324,7 +367,6 @@ public class FlowGenerator {
         }
         return total;
     }
-
 
     private BasicFlow updateTcpCxnDuration(BasicFlow tcpFlow) {
         long currDuration = tcpFlow.getCumulativeTcpConnectionDuration();

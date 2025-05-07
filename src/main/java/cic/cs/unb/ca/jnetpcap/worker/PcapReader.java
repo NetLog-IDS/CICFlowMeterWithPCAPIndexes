@@ -15,13 +15,12 @@ import static cic.cs.unb.ca.jnetpcap.Utils.countLines;
 
 public class PcapReader {
 
-
     public static void readFile(String inputFile, String outPath, long flowTimeout, long activityTimeout) {
         if (inputFile == null || outPath == null) {
             return;
         }
 
-        //String fileName = FilenameUtils.getName(inputFile);
+        // String fileName = FilenameUtils.getName(inputFile);
         Path p = Paths.get(inputFile);
         String fileName = p.getFileName().toString();
 
@@ -95,7 +94,6 @@ public class PcapReader {
         System.out.println("-----------------------------------------------------------------------------------------");
     }
 
-
     static class FlowListener implements FlowGenListener {
 
         private String fileName;
@@ -115,7 +113,8 @@ public class PcapReader {
             String flowDump = flow.dumpFlowBasedFeaturesEx();
             List<String> flowStringList = new ArrayList<>();
             flowStringList.add(flowDump);
-            InsertCsvRow.insert(FlowFeature.getHeader(), flowStringList, outPath, fileName + FLOW_SUFFIX);
+            // InsertCsvRow.insert(FlowFeature.getHeader(), flowStringList, outPath,
+            // fileName + FLOW_SUFFIX);
 
             cnt++;
 

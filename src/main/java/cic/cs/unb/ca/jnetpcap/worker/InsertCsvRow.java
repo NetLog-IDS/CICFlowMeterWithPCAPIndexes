@@ -1,6 +1,5 @@
 package cic.cs.unb.ca.jnetpcap.worker;
 
-
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -37,10 +36,11 @@ public class InsertCsvRow implements Runnable {
 
     @Override
     public void run() {
-        insert(header,rows,savepath,filename);
+        insert(header, rows, savepath, filename, new ArrayList<String>());
     }
 
-    public static void insert(String header,List<String>  rows,String savepath, String filename) {
+    public static void insert(String header, List<String> rows, String savepath, String filename,
+            List<String> indexRows) {
         if (savepath == null || filename == null || rows == null || rows.size() <= 0) {
             String ex = String.format("savepath=%s,filename=%s", savepath, filename);
             throw new IllegalArgumentException(ex);
@@ -48,35 +48,42 @@ public class InsertCsvRow implements Runnable {
 
         File fileSavPath = new File(savepath);
 
-        if(!fileSavPath.exists()) {
+        if (!fileSavPath.exists()) {
             fileSavPath.mkdirs();
         }
 
-
-        if(!savepath.endsWith(FILE_SEP)){
+        if (!savepath.endsWith(FILE_SEP)) {
             savepath += FILE_SEP;
         }
 
-        File file = new File(savepath+filename);
+        File file = new File(savepath + filename);
         FileOutputStream output = null;
+        File indexFile = new File(savepath + filename + "_index.txt");
+        FileOutputStream indexOutput = null;
 
         try {
             if (file.exists()) {
                 output = new FileOutputStream(file, true);
-            }else{
+                indexOutput = new FileOutputStream(indexFile, true);
+            } else {
                 if (file.createNewFile()) {
+                    indexFile.createNewFile();
                     output = new FileOutputStream(file);
+                    indexOutput = new FileOutputStream(indexFile);
                 }
                 if (header != null) {
-                    output.write((header+LINE_SEP).getBytes());
+                    output.write((header + LINE_SEP).getBytes());
                 }
             }
             for (String row : rows) {
-                output.write((row+LINE_SEP).getBytes());
+                output.write((row + LINE_SEP).getBytes());
+            }
+            for (String indexRow : indexRows) {
+                indexOutput.write((indexRow + LINE_SEP).getBytes());
             }
 
         } catch (IOException e) {
-                logger.debug(e.getMessage());
+            logger.debug(e.getMessage());
         } finally {
             try {
                 if (output != null) {
